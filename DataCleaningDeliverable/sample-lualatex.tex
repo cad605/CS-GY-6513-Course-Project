@@ -1,0 +1,145 @@
+
+\documentclass[sigconf, nonacm]{acmart}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+\begin{document}
+
+\title{Assessing the Impact of the COVID-19 Pandemic on the US Domestic Tourism and Hospitality Industry}
+\author{Christopher Donnelly}
+\email{cad605@nyu.edu}
+\affiliation{%
+  \institution{NYU Tandon School of Engineering}
+  \country{New York, NY}
+}
+
+\author{Eric Yuzhuo Lu}
+\email{yl7163@nyu.edu}
+\affiliation{%
+  \institution{NYU Tandon School of Engineering}
+  \country{New York, NY, USA}
+}
+
+\author{Benjamin Teo}
+\email{bt839@nyu.edu}
+\affiliation{%
+  \institution{NYU Tandon School of Engineering}
+  \country{New York, NY, USA}
+}
+
+\renewcommand{\shortauthors}{Group 9}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+COVID-19 has caused unprecedented damage to the global tourism industry, which "made up 10 percent of global GDP in 2019 and was worth almost \$9 trillion, making the sector nearly three times larger than agriculture" \cite{McKinsey0820}. In this project, we assess the damage done to the US domestic tourism and hospitality industry. We plan on conducting this analysis by taking the pulse of three main economic sub-sectors: commercial air travel, hotels, and restaurants.
+\end{abstract}
+
+\maketitle
+
+\section{Data Cleaning and Integration}
+The following section details the various datasets we have collected, along with a description of the process we went through to clean and integrate the datasets in preparation for further analysis. A list of the datasets is provided below. All data and code can be found at this repository: \url{https://github.com/cad605/CS-GY-6513-Course-Project}.
+
+\subsection{US Domestic Flights Data}
+
+In trying to understand the impact of the pandemic on domestic travel, we wanted to explore historical flight data within the United States. The value of this type of data is many-fold, as "flights as an indicator of economic activity can provide insights into the impact of the pandemic on both countries' economies in general and the aviation industry in particular"\cite{OpenSky1220}. The dataset that we decided to use is from the OpenSky network, and spans metadata for all flights seen by the network's more than 3500 members in 2019 and 2020. A description of the structure and fields are presented in the tables below.
+
+One issue with the flight dataset is that, while it contains the abbreviated origin and destination airports, it doesn't provide information as to where those airports reside. Because our analysis focuses on US Domestic flights, we integrated this dataset with airport data from \url{https://ourairports.com}. We brought these datasets together using PySpark. First, we selected for only those airports that are within the United States. We also filtered out any airports that are not commercial, such as Air Force bases, and selected only the largest airports. This process provided us with a list of airports within the United States, along with pertinent information such as the coordinates and state of each airport.
+
+With the airport data in-hand, we then used two joins on the flights dataset and filtered airports, joining on the origin and destination codes of flights, with the airport identifier. This effectively filtered out any flights that were not from one airport within the US to another airport within the US. Our final dataset consists of over 3 million rows of flight data, spanning the end of 2019 through to the end of Februrary, 2021.
+
+\subsection{US Hotel Data}
+
+Our second indicator is exploring the impact of COVID-19 on the US hotel industry. As we all know, since the outbreak of COVID-19 in March 2020, the hotel industry has been hit hard. For example, in New York, many hotels have experienced a sharp drop in occupancy rates, and even temporarily closed business or converted to homeless shelters in exchange for government subsidies. We believe that there are two main indicators that can measure the operating conditions of a hotel: the average hotel price and the average hotel occupancy rate. Thus $Price*occupancyRate$ can reflect the hotel’s income. This report assumes that the operating costs of hotels are roughly the same, which are only positively correlated with the monthly inflation rate.
+
+We collected the weekly data for 2019 and 2020 (until November), and selected 100 representative cities in the United States as our basic data source. On this basis, it is expected that the next step will be gradually analyzed questions such as:
+
+\begin{enumerate}
+  \item  What is the overall impact of COVID on the US hotel industry, and how much is the loss?
+  \item Which cities are most affected by COVID? Is it an industrial city, a tourist city, or a huge metropolitan?
+  \item Which types of cities have strong anti-strike capabilities and can quickly resume operations from the epidemic?
+  \item Analyze the future recovery trend from a geographical perspective?
+\end{enumerate}
+
+Finally, we plan to visualize the data dynamically on the (United States) map.
+
+The data source of this report is \url{https://str.com}. Thanks to Yong Lu and Renhong Yu as insiders in the hotel industry for their strong support on data, allowing us to have limited access to the database. The tool used for data cleaning is OpenRefine taught in class.
+
+\subsection{US Restaurant Data}
+The last industry that we looked into was the restaurant industry. The pandemic brought closures and restrictions that hurt small businesses such as restaurants. We wanted to get a sense of the percentage of restaurants were allowed to open, versus the percentage of restaurants that were only allowed to be curbside/delivery. After that, I’ll try to find data on delivery revenue for restaurants vs dining revenue to compare. 
+
+We started off by looking at the data to see if there’re any obvious outliers, typos, or other non-standardized data. However, the data looked pretty clean from the start, so we decided to dive deeper by finding the number of unique values within the state/territory column. We wanted to eliminate any data that didn't make sense. Fortunately, there were a total of 56 unique values and we compared them to an array of the all the U.S states/territories, and they all matched. Next, we looked at the Business Type and confirmed that there’s only 1 business type, which is Restaurant. Lastly, we also looked at the date-time format, order-group and actions to make sure they were all standardized as well.
+
+\section{Analysis Conducted By}
+\begin{enumerate}
+  \item  US Domestic Flights Data - Christopher Donnelly 
+  \item US Hotel Data - Eric Yuzhuo Lu
+  \item US Resturant Data - Benjamin Teo
+\end{enumerate}
+
+
+\begin{table*}
+  \caption{Datasets}
+  \label{tab:commands}
+  \begin{tabular}{ccl}
+    \toprule
+    Dataset & URL\\
+    \midrule
+    \texttt{OpenSky COVID-19 Dataset} & https://zenodo.org/record/4601479\\
+    \texttt{OurAirports-Airports.csv} & https://ourairports.com/data/\\
+    \texttt{US Hotel Average Price} & https://drive.google.com/file/d/1uuboy4SefP-mPku45GssSfbmwJs1FJle/view?usp=sharing\\
+    \texttt{US Hotel Occupancy} & https://drive.google.com/file/d/1GgWCApyJihRooNf0XHvZ6TNZp6zFcD2r/view?usp=sharing\\
+    \texttt{Resturant Data} & https://drive.google.com/file/d/17E8JGhcOkYNQFhHrDNr5ADPNLI1J6e0A/view?usp=sharing\\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table*}
+  \caption{Airports}
+  \label{tab:commands}
+  \begin{tabular}{ccl}
+    \toprule
+    Column & Sample Value & Description\\
+    \midrule
+    \texttt{id} & 2434 & Internal OurAirports integer identifier for the airport.\\
+    \texttt{ident} & EGLL & The ICAO code if available.\\
+    \texttt{type} & large\_airport & The type of the airport.\\
+    \texttt{name} & London Heathrow Airport & The official airport name.\\
+    \texttt{iso\_country} & GB & The ISO code for the country where the airport is (primarily) located.\\
+    \texttt{iso\_region} & GB-ENG  & An alphanumeric code for subdivision of a country.\\
+    \texttt{municipality} & London & The primary municipality that the airport serves (when available).\\
+    \texttt{latitude\_deg} & 51.470600 & The airport latitude in decimal degrees (positive for north).\\
+    \texttt{longitude\_deg} & -0.461941 & The airport longitude in decimal degrees (positive for east)..\\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table*}
+  \caption{Flights}
+  \label{tab:commands}
+  \begin{tabular}{ccl}
+    \toprule
+    Column & Description\\
+    \midrule
+    \texttt{callsign} & Identifier of the flight displayed on ATC screens\\
+    \texttt{number} & Commercial number of the flight.\\
+    \texttt{icao24} & The transponder unique identification number.\\
+    \texttt{registration} & The aircraft tail number.\\
+    \texttt{typecode} & The aircraft model type.\\
+    \texttt{origin} & A four letter code for the origin airport of the flight.\\
+    \texttt{destination} & A four letter code for the origin airport of the flight.\\
+    \texttt{day} & The UTC day of the last message received by the OpenSky Network.\\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-lualatex.tex'.
