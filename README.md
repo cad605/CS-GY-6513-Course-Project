@@ -9,3 +9,6 @@ All code for this project can be found in the repository, seprated into folders 
 
 ## Data
 All data for this project can be accessed at this drive: https://drive.google.com/drive/folders/1ur5P0akkruziielMMrjqS6-3tZHUASjZ?usp=sharing
+
+## Assessing the Impact of Covid-19 on US Domestic Air Travel
+View visualizations created using our flight data set at: https://cad605.github.io/
