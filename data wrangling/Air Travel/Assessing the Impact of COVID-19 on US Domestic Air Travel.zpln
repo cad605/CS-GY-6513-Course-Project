@@ -1,0 +1,1008 @@
+﻿{
+  "paragraphs": [
+    {
+      "text": "%pyspark\nfrom __future__ import print_function\n\nimport sys\nfrom operator import add\nfrom pyspark import SparkContext\nfrom pyspark.sql.functions import format_string, date_format, col\nfrom pyspark.sql.types import FloatType\nfrom csv import reader\n\nspark = SparkSession \\\n    .builder \\\n    .appName(\"Python Spark SQL - Flights Analysis\") \\\n    .config(\"spark.some.config.option\", \"some-value\") \\\n    .getOrCreate()\n\nfs = (sc._jvm.org\n      .apache.hadoop\n      .fs.FileSystem\n      .get(sc._jsc.hadoopConfiguration())\n      )\n      \n#data can be found at the projects github repo; however, the flights data is very large\nairport_data_path = \"/user/cad605/data/airports.csv\"\nflight_data_path = \"/user/cad605/combined_flights.csv\"\n\n# fs.delete(sc._jvm.org.apache.hadoop.fs.Path(out_path), True)\n\n# TODO: update path with sys.argv[1] if running outside of Zeppelin\nairports = spark.read.format('csv').options(header='true', inferschema='true').load(\n    airport_data_path)\n# TODO: update path with sys.argv[2] if running outside of Zeppelin\nflights = spark.read.format('csv').options(header='true', inferschema='true').load(\n    flight_data_path)\n    \nairports.createOrReplaceTempView(\"airports\")\nflights.createOrReplaceTempView(\"flights\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-29T11:17:48-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=0",
+              "$$hashKey": "object:2498"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=1",
+              "$$hashKey": "object:2499"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=2",
+              "$$hashKey": "object:2500"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=3",
+              "$$hashKey": "object:2501"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1617208093975_578827759",
+      "id": "paragraph_1617208093975_578827759",
+      "dateCreated": "2021-03-31T12:28:13-0400",
+      "dateStarted": "2021-04-29T11:17:48-0400",
+      "dateFinished": "2021-04-29T11:21:42-0400",
+      "status": "FINISHED",
+      "focus": true,
+      "$$hashKey": "object:1926"
+    },
+    {
+      "text": "%pyspark\n#peek flight data\nflights = spark.sql(\"SELECT * FROM flights\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-29T21:37:50-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1617216583155_1063125686",
+      "id": "paragraph_1617216583155_1063125686",
+      "dateCreated": "2021-03-31T14:49:43-0400",
+      "dateStarted": "2021-04-29T21:37:50-0400",
+      "dateFinished": "2021-04-29T21:37:50-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1927"
+    },
+    {
+      "text": "%pyspark\n#peek airports data\nairports = spark.sql(\"SELECT * FROM airports\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-29T20:17:35-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1617216927915_1505020518",
+      "id": "paragraph_1617216927915_1505020518",
+      "dateCreated": "2021-03-31T14:55:27-0400",
+      "dateStarted": "2021-04-29T20:17:35-0400",
+      "dateFinished": "2021-04-29T20:17:35-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1928"
+    },
+    {
+      "text": "%pyspark\n#filter our airports to only those within the United States, and that are large, commmercial airports (ex. no Air Force bases)\nfiltered_airports = spark.sql(\"SELECT ident, type, name, latitude_deg, longitude_deg, iso_country, iso_region, municipality FROM airports WHERE (iso_country='US' AND type='large_airport' AND (name NOT LIKE '%Air Force%'))\")\nfiltered_airports.createOrReplaceTempView(\"filtered_airports\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-29T20:17:40-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1617214791736_1944420554",
+      "id": "paragraph_1617214791736_1944420554",
+      "dateCreated": "2021-03-31T14:19:51-0400",
+      "dateStarted": "2021-04-29T20:17:40-0400",
+      "dateFinished": "2021-04-29T20:17:40-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1929"
+    },
+    {
+      "text": "%pyspark\n#write filtered_airports, to output file: processed_airports\nfiltered_airports.select(format_string('%s,%s,%s,%f,%f,%s,%s,%s', filtered_airports.ident, filtered_airports.type, filtered_airports.name, filtered_airports.latitude_deg, filtered_airports.longitude_deg, filtered_airports.iso_country, filtered_airports.iso_region, filtered_airports.municipality)).write.save(\"processed_airports\", format=\"text\")",
+      "user": "anonymous",
+      "dateUpdated": "2021-04-28T13:43:00-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc08.nyu.cluster:40811/jobs/job?id=71",
+              "$$hashKey": "object:2687"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619533745386_1139358159",
+      "id": "paragraph_1619533745386_1139358159",
+      "dateCreated": "2021-04-27T10:29:05-0400",
+      "dateStarted": "2021-04-28T13:43:00-0400",
+      "dateFinished": "2021-04-28T13:43:00-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1930"
+    },
+    {
+      "text": "%pyspark\n#filter flights to only domestic flights, where the origin and destination match an airport within our filtered_airport table\nfiltered_flights = spark.sql(\"SELECT f.callsign, f.origin, f.destination, f.day, a1.name as origin_name, a1.latitude_deg as origin_lat, a1.longitude_deg as origin_long, a1.iso_region as origin_region, a1.municipality as origin_municipality, a2.name as dest_name, a2.latitude_deg as dest_lat, a2.longitude_deg as dest_long, a2.iso_region as dest_region, a2.municipality as dest_municipality FROM flights as f INNER JOIN filtered_airports AS a1 ON f.origin = a1.ident INNER JOIN filtered_airports as a2 ON f.destination = a2.ident\")\nfiltered_flights.createOrReplaceTempView(\"filtered_flights\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-30T14:05:37-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1617215362645_1900318507",
+      "id": "paragraph_1617215362645_1900318507",
+      "dateCreated": "2021-03-31T14:29:22-0400",
+      "dateStarted": "2021-04-30T14:05:37-0400",
+      "dateFinished": "2021-04-30T14:05:37-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1931"
+    },
+    {
+      "text": "%pyspark\n#filter flights to only those operated by one of the top 10 commerical airliners\nfiltered_commerical = spark.sql(\"SELECT LEFT(callsign, 3) as airline, callsign, origin, destination, day, origin_name, origin_lat, origin_long, origin_region, origin_municipality, dest_name, dest_lat, dest_long, dest_region, dest_municipality FROM filtered_flights WHERE LEFT(callsign, 3) IN ('DAL','JBU','UAL','SWA','AAL','NKS','FFT','SCX','AAY','SKW')\")\nfiltered_commerical.createOrReplaceTempView(\"filtered_commerical\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-04T10:27:58-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619801670930_1884852570",
+      "id": "paragraph_1619801670930_1884852570",
+      "dateCreated": "2021-04-30T12:54:30-0400",
+      "dateStarted": "2021-04-30T14:05:42-0400",
+      "dateFinished": "2021-04-30T14:05:42-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1932"
+    },
+    {
+      "text": "%pyspark\n#output: processed_flights\n#This file includes all flights (not filtered by operator)\n#This has not been used in analysis\nfiltered_flights.select(format_string('%s,%s,%s,%s,%s,%f,%f,%s,%s,%s,%f,%f,%s,%s', filtered_flights.callsign, filtered_flights.origin, filtered_flights.destination,date_format(filtered_flights.day, 'yyyy-MM-dd'), filtered_flights.origin_name, filtered_flights.origin_lat, filtered_flights.origin_long, filtered_flights.origin_region, filtered_flights.origin_municipality, filtered_flights.dest_name, filtered_flights.dest_lat, filtered_flights. dest_long, filtered_flights.dest_region, filtered_flights.dest_municipality)).write.save(\"processed_flights\", format=\"text\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-04T10:29:23-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=103",
+              "$$hashKey": "object:2819"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=104",
+              "$$hashKey": "object:2820"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619746642784_956484980",
+      "id": "paragraph_1619746642784_956484980",
+      "dateCreated": "2021-04-29T21:37:22-0400",
+      "dateStarted": "2021-04-30T14:07:06-0400",
+      "dateFinished": "2021-04-30T14:08:56-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1933"
+    },
+    {
+      "text": "%pyspark\n#output: processed_commercial_flights\n#This file includes all domestic US flights, filtered to only those operatored by one of the top 10 domestic airliners\nfiltered_commerical.select(format_string('%s,%s,%s,%s,%s,%s,%f,%f,%s,%s,%s,%f,%f,%s,%s', filtered_commerical.airline, filtered_commerical.callsign, filtered_commerical.origin, filtered_commerical.destination,date_format(filtered_commerical.day, 'yyyy-MM-dd'), filtered_commerical.origin_name, filtered_commerical.origin_lat, filtered_commerical.origin_long, filtered_commerical.origin_region, filtered_commerical.origin_municipality, filtered_commerical.dest_name, filtered_commerical.dest_lat, filtered_commerical. dest_long, filtered_commerical.dest_region, filtered_commerical.dest_municipality)).write.save(\"processed_commercial_flights\", format=\"text\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-04T10:30:06-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=105",
+              "$$hashKey": "object:2872"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=106",
+              "$$hashKey": "object:2873"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619803957032_271192290",
+      "id": "paragraph_1619803957032_271192290",
+      "dateCreated": "2021-04-30T13:32:37-0400",
+      "dateStarted": "2021-04-30T14:07:07-0400",
+      "dateFinished": "2021-04-30T14:10:35-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1934"
+    },
+    {
+      "text": "%pyspark\n#Get weekly flight counts for each route (origin:destination)\nweekly_route_flights = spark.sql(\"SELECT year(day) as year, month(day) as month, weekofyear(day) as week, airline, origin, destination, origin_name, origin_lat, origin_long, dest_name, dest_lat, dest_long, COUNT(*) as count FROM filtered_commerical GROUP BY year, month, week, airline, origin, destination, origin_name, origin_lat, origin_long, dest_name, dest_lat, dest_long ORDER BY year ASC, month ASC, week ASC\")\nweekly_route_flights.createOrReplaceTempView(\"weekly_route_flights\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-04T10:30:40-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619475076292_2070696581",
+      "id": "paragraph_1619475076292_2070696581",
+      "dateCreated": "2021-04-26T18:11:16-0400",
+      "dateStarted": "2021-04-30T14:05:58-0400",
+      "dateFinished": "2021-04-30T14:05:58-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1935"
+    },
+    {
+      "text": "%pyspark\n#output: processed_weekly_flights\nweekly_route_flights.select(format_string('%s,%s,%s,%s,%s,%s,%s,%f,%f,%s,%f,%f,%d', weekly_route_flights.year, weekly_route_flights.month, weekly_route_flights.week, weekly_route_flights.airline, weekly_route_flights.origin, weekly_route_flights.destination, weekly_route_flights.origin_name, weekly_route_flights.origin_lat, weekly_route_flights.origin_long, weekly_route_flights.dest_name, weekly_route_flights.dest_lat, weekly_route_flights.dest_long, weekly_route_flights[\"count\"])).write.save(\"processed_weekly_flights\", format=\"text\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-30T14:07:12-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=107",
+              "$$hashKey": "object:2967"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=108",
+              "$$hashKey": "object:2968"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=109",
+              "$$hashKey": "object:2969"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619532425285_203714354",
+      "id": "paragraph_1619532425285_203714354",
+      "dateCreated": "2021-04-27T10:07:05-0400",
+      "dateStarted": "2021-04-30T14:08:56-0400",
+      "dateFinished": "2021-04-30T14:11:59-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1936"
+    },
+    {
+      "text": "%pyspark\n#Get monthly flight counts for each route (origin:destination)\nmonthly_route_flights = spark.sql(\"SELECT year(day) as year, month(day) as month, airline, origin, destination, origin_name, origin_lat, origin_long, dest_name, dest_lat, dest_long, COUNT(*) as count FROM filtered_commerical GROUP BY year, month, airline, origin, destination, origin_name, origin_lat, origin_long, dest_name, dest_lat, dest_long ORDER BY year ASC, month ASC\")\nmonthly_route_flights.createOrReplaceTempView(\"\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-04T10:30:52-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619749919390_1325740900",
+      "id": "paragraph_1619749919390_1325740900",
+      "dateCreated": "2021-04-29T22:31:59-0400",
+      "dateStarted": "2021-04-30T14:06:40-0400",
+      "dateFinished": "2021-04-30T14:06:40-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1937"
+    },
+    {
+      "text": "%pyspark\n#output: processed_monthly_flights\nmonthly_route_flights.select(format_string('%s,%s,%s,%s,%s,%s,%f,%f,%s,%f,%f,%d', monthly_route_flights.year, monthly_route_flights.month, monthly_route_flights.airline, monthly_route_flights.origin, monthly_route_flights.destination, monthly_route_flights.origin_name, monthly_route_flights.origin_lat, monthly_route_flights.origin_long, monthly_route_flights.dest_name, monthly_route_flights.dest_lat, monthly_route_flights.dest_long, monthly_route_flights[\"count\"])).write.save(\"processed_monthly_flights\", format=\"text\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-30T14:19:37-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=117",
+              "$$hashKey": "object:3067"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=118",
+              "$$hashKey": "object:3068"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=119",
+              "$$hashKey": "object:3069"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619750040207_1962668090",
+      "id": "paragraph_1619750040207_1962668090",
+      "dateCreated": "2021-04-29T22:34:00-0400",
+      "dateStarted": "2021-04-30T14:19:37-0400",
+      "dateFinished": "2021-04-30T14:20:54-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1938"
+    },
+    {
+      "text": "%pyspark\n#Get weekly flight counts for each airline\nweekly_airline_flights = spark.sql(\"SELECT year(day) as year, month(day) as month, weekofyear(day) as week, airline, COUNT(*) as count FROM filtered_commerical GROUP BY year, month, week, airline ORDER BY year ASC, month ASC, week ASC\")\nweekly_airline_flights.createOrReplaceTempView(\"weekly_airline_flights\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-04T10:31:15-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619806044028_1447615108",
+      "id": "paragraph_1619806044028_1447615108",
+      "dateCreated": "2021-04-30T14:07:24-0400",
+      "dateStarted": "2021-04-30T14:51:11-0400",
+      "dateFinished": "2021-04-30T14:51:11-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1939"
+    },
+    {
+      "text": "%pyspark\n#output: processed_weekly_flights_airline\nweekly_airline_flights.select(format_string('%s,%s,%s,%s,%d', weekly_airline_flights.year, weekly_airline_flights.month, weekly_airline_flights.week, weekly_airline_flights.airline, weekly_airline_flights[\"count\"])).write.save(\"processed_weekly_flights_airline\", format=\"text\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-30T14:53:49-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=120",
+              "$$hashKey": "object:3167"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=121",
+              "$$hashKey": "object:3168"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=122",
+              "$$hashKey": "object:3169"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619808671490_288642493",
+      "id": "paragraph_1619808671490_288642493",
+      "dateCreated": "2021-04-30T14:51:11-0400",
+      "dateStarted": "2021-04-30T14:53:49-0400",
+      "dateFinished": "2021-04-30T14:55:10-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1940"
+    },
+    {
+      "text": "%pyspark\n#Get monthly flight counts for each airline\nmonthly_airline_flights = spark.sql(\"SELECT year(day) as year, month(day) as month, airline, COUNT(*) as count FROM filtered_commerical GROUP BY year, month, airline ORDER BY year ASC, month ASC\")\nmonthly_airline_flights.createOrReplaceTempView(\"monthly_airline_flights\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-04T10:31:27-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619808750489_1120739212",
+      "id": "paragraph_1619808750489_1120739212",
+      "dateCreated": "2021-04-30T14:52:30-0400",
+      "dateStarted": "2021-04-30T14:56:41-0400",
+      "dateFinished": "2021-04-30T14:56:41-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1941"
+    },
+    {
+      "text": "%pyspark\n#output: processed_monthly_flights_airline\nmonthly_airline_flights.select(format_string('%s,%s,%s,%d', monthly_airline_flights.year, monthly_airline_flights.month, monthly_airline_flights.airline, monthly_airline_flights[\"count\"])).write.save(\"processed_monthly_flights_airline\", format=\"text\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-30T14:56:45-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=123",
+              "$$hashKey": "object:3267"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=124",
+              "$$hashKey": "object:3268"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=125",
+              "$$hashKey": "object:3269"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619808892060_44498802",
+      "id": "paragraph_1619808892060_44498802",
+      "dateCreated": "2021-04-30T14:54:52-0400",
+      "dateStarted": "2021-04-30T14:56:45-0400",
+      "dateFinished": "2021-04-30T14:57:59-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1942"
+    },
+    {
+      "text": "%pyspark\n#Get monthly flight counts\nmonthly_flights = spark.sql(\"SELECT year(day) as year, month(day) as month, COUNT(*) as count FROM filtered_commerical GROUP BY year, month ORDER BY year ASC, month ASC\")\nmonthly_flights.createOrReplaceTempView(\"monthly_flights\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-04T10:31:40-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619809005369_594548870",
+      "id": "paragraph_1619809005369_594548870",
+      "dateCreated": "2021-04-30T14:56:45-0400",
+      "dateStarted": "2021-04-30T15:15:47-0400",
+      "dateFinished": "2021-04-30T15:15:48-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1943"
+    },
+    {
+      "text": "%pyspark\n#output: processed_monthly_flights_counts\nmonthly_flights.select(format_string('%s,%s,%d', monthly_flights.year, monthly_flights.month, monthly_flights[\"count\"])).write.save(\"processed_monthly_flights_counts\", format=\"text\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-04-30T15:19:06-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=132",
+              "$$hashKey": "object:3367"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=133",
+              "$$hashKey": "object:3368"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=134",
+              "$$hashKey": "object:3369"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619810080217_411363240",
+      "id": "paragraph_1619810080217_411363240",
+      "dateCreated": "2021-04-30T15:14:40-0400",
+      "dateStarted": "2021-04-30T15:19:06-0400",
+      "dateFinished": "2021-04-30T15:20:18-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1944"
+    },
+    {
+      "text": "%pyspark\n#Get monthly incoming flight counts for each airport\naiport_monthly_incoming = spark.sql(\"SELECT year, month, destination, dest_lat, dest_long, SUM(count) as total FROM monthly_route_flights GROUP BY year, month, destination, dest_lat, dest_long ORDER BY total DESC\")\naiport_monthly_incoming.createOrReplaceTempView(\"aiport_monthly_incoming\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-04T10:32:08-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1619810149514_2013225054",
+      "id": "paragraph_1619810149514_2013225054",
+      "dateCreated": "2021-04-30T15:15:49-0400",
+      "dateStarted": "2021-05-03T13:55:38-0400",
+      "dateFinished": "2021-05-03T13:55:38-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1945"
+    },
+    {
+      "text": "%pyspark\n#output: processed_airports_monthly_incoming\naiport_monthly_incoming.select(format_string('%s,%s,%s,%f,%f,%d', aiport_monthly_incoming.year,aiport_monthly_incoming.month, aiport_monthly_incoming.destination, aiport_monthly_incoming.dest_lat, aiport_monthly_incoming.dest_long, aiport_monthly_incoming[\"total\"])).write.save(\"processed_airports_monthly_incoming\", format=\"text\")",
+      "user": "nbuser",
+      "dateUpdated": "2021-05-03T13:56:02-0400",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=138",
+              "$$hashKey": "object:3467"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=139",
+              "$$hashKey": "object:3468"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=140",
+              "$$hashKey": "object:3469"
+            },
+            {
+              "jobUrl": "http://hc07.nyu.cluster:41706/jobs/job?id=141",
+              "$$hashKey": "object:3470"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1620064226748_368370847",
+      "id": "paragraph_1620064226748_368370847",
+      "dateCreated": "2021-05-03T13:50:26-0400",
+      "dateStarted": "2021-05-03T13:56:02-0400",
+      "dateFinished": "2021-05-03T13:57:31-0400",
+      "status": "FINISHED",
+      "$$hashKey": "object:1946"
+    }
+  ],
+  "name": "Assessing the Impact of COVID-19 on US Domestic Air Travel",
+  "id": "2G39UPJKR",
+  "defaultInterpreterGroup": "spark",
+  "version": "0.9.0",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false,
+    "looknfeel": "default",
+    "personalizedMode": "false"
+  },
+  "info": {},
+  "path": "/Assessing the Impact of COVID-19 on US Domestic Air Travel"
+}
